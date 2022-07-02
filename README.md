@@ -22,4 +22,3 @@ The dataset is organized as follows:
 | 10 | size8nm_T303 <br> Initial diameter = 8nm, T=303 K  |data1.system <br> in.water <br> size8nm_T303.mat| LAMMPS data input file <br> LAMMPS system input file <br> cleaned up MATLAB table of number of molecules in droplet with time|
 | 11 | size8nm_T303 <br> Initial diameter = 8nm, T=323 K  |data1.system <br> in.water <br> size8nm_T323.mat| LAMMPS data input file <br> LAMMPS system input file <br> cleaned up MATLAB table of number of molecules in droplet with time|
 | 12 | size8nm_T303 <br> Initial diameter = 8nm, T=343 K  |data1.system <br> in.water <br> size8nm_T343.mat| LAMMPS data input file <br> LAMMPS system input file <br> cleaned up MATLAB table of number of molecules in droplet with time|
-| 13 | MATLAB scripts | read_data.mlx | MATLAB script to read in data generated from LAMMPS
