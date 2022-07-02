@@ -1,1 +1,179 @@
+# DESALINATION LAMMPS INPUT SCRIPT 21 JAN 2016
 
+#SETUP
+
+
+units  real
+atom_style      full
+boundary p p p
+
+bond_style harmonic
+angle_style harmonic
+read_data data1.system
+
+
+#Define group
+group water  type 1 2
+group N2 type 3
+group O2 type 4
+group middle id 1333	1334	1335	1336	1337	1338	1363	1364	1365	1366	1367	1368	1633	1634	1635	1636	1637	1638	1663	1664	1665	1666	1667	1668
+
+region diameter50 sphere 90 90 90 70 side out
+
+
+#POTENTIAL MODEL SETTINGS
+
+
+#Settings for TIP4P (long range model)
+pair_style hybrid lj/cut/tip4p/long 1 2 1 1 0.1250 8.5 8.5 lj/cut/coul/long 8.5 8.5
+
+pair_coeff  *  * lj/cut/tip4p/long 0.  0.
+pair_coeff  *  * lj/cut/coul/long  0.  0.
+
+pair_coeff	1	1 lj/cut/tip4p/long	0.1628	3.164
+pair_coeff	1	2 lj/cut/tip4p/long	0	0
+pair_coeff	1	3 lj/cut/coul/long	0.108416604	3.23065
+pair_coeff	1	4 lj/cut/coul/long	0.195346666	3.372
+pair_coeff	2	2 lj/cut/tip4p/long	0	0
+pair_coeff	2	3 lj/cut/coul/long	0	0
+pair_coeff	2	4 lj/cut/coul/long	0	0
+pair_coeff	3	3 lj/cut/coul/long	0.0722	3.2973
+pair_coeff	3	4 lj/cut/coul/long	0.130091045	3.43865
+pair_coeff	4	4 lj/cut/coul/long	0.2344	3.58
+
+
+kspace_style pppm/tip4p 1.0e-5
+
+#COMPUTATIONAL SETTINGS
+
+neighbor 2.0 bin
+neigh_modify delay 5
+
+velocity all create 293 818181 rot yes dist gaussian
+minimize 1.0e-5 1.0e-7 1000 10000
+
+
+#EQUILIBRATION OF FLUIDS
+velocity middle set 0.0 0.0 0.0
+fix freeze_middle middle setforce 0.0 0.0 0.0 
+fix 1 water shake 1e-6 200 0 b 1 a 1
+fix 2 all npt temp 293.0 293.0 100.0 iso 1.0 1.0 1000.0
+compute c1 water cluster/atom 3.5
+compute cc1 water chunk/atom c_c1 compress yes
+compute prop all property/atom xu yu zu
+fix ave_xyz_chunk water ave/chunk 10 10 1000 cc1 c_prop[*] file average_chunk_position.csv 
+
+thermo_style    custom step temp press vol etotal
+
+dump  vmd1 all xyz 1000 droplet.*.xyz
+dump_modify vmd1 element O H N O
+
+
+thermo_style    custom step temp press vol etotal atoms
+thermo          1000 
+
+timestep 0.5
+run 100000
+write_restart restart.equilibrated1.system
+
+timestep 1
+run 50000
+write_restart restart.equilibrated2.system
+
+
+unfix 1
+unfix 2
+
+
+
+#Increase temperature to 303
+fix 3 water shake 1e-6 200 0 b 1 a 1
+fix 4 all npt temp 293.0 303.0 100.0 iso 1.0 1.0 1000.0
+
+
+timestep 1
+run 50000
+write_restart restart.equilibrated2.system
+
+
+unfix 3
+unfix 4
+
+#Collect data at 303
+fix evaporate_water water evaporate 100 50 diameter50 49892 molecule yes
+fix 5 water shake 1e-6 200 0 b 1 a 1
+fix 6 all npt temp 303.0 303.0 100.0 iso 1.0 1.0 1000.0
+
+dump cluster1 all custom 1000 droplet_cluster.*.xyz id c_c1 c_cc1 x y z
+
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+timestep 1
+run 100000
+write_restart restart.*.system
+
+#To continue to as many timesteps as needed
