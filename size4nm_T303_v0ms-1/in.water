@@ -1,0 +1,228 @@
+# DESALINATION LAMMPS INPUT SCRIPT 21 JAN 2016
+
+#SETUP
+
+
+units  real
+atom_style      full
+boundary p p p
+
+bond_style harmonic
+angle_style harmonic
+read_data data1.system
+
+
+#Define group
+group water  type 1 2
+group N2 type 3
+group O2 type 4
+group middle id 1333	1334	1335	1336	1337	1338	1363	1364	1365	1366	1367	1368	1633	1634	1635	1636	1637	1638	1663	1664	1665	1666	1667	1668
+group air type 3 4
+region diameter50 sphere 70 70 70 50 side out
+
+
+group deletedwater1 id 2374 2375 2376
+group deletedwater1prime subtract water deletedwater1
+
+#group deletedwater2 id 2701 2702 2703
+#group deletedwater2prime subtract water deletedwater2
+#group deletedwater3 id 2914 2915 2916
+#group deletedwater3prime subtract water deletedwater3
+#group deletedwater4 id 1774 1775 1776
+#group deletedwater4prime subtract water deletedwater4
+#group deletedwater5 id 2506 2507 2508
+#group deletedwater5prime subtract water deletedwater5
+
+group water_sub1 id 1:150
+
+group innerwater1 id 577 578 579
+group innerwater1prime subtract water innerwater1
+group innerwater2 id 481 482 483
+group innerwater2prime subtract water innerwater2
+group innerwater3 id 2842 2843 2844
+group innerwater3prime subtract water innerwater3
+#group innerwater4 id 2098 2099 3000
+#group innerwater4prime subtract water innerwater4
+#group innerwater5 id 1408 1409 1410
+#group innerwater5prime subtract water innerwater5
+
+#POTENTIAL MODEL SETTINGS
+
+
+#Settings for TIP4P (long range model)
+pair_style hybrid lj/cut/tip4p/long 1 2 1 1 0.1250 8.5 8.5 lj/cut/coul/long 8.5 8.5
+
+pair_coeff  *  * lj/cut/tip4p/long 0.  0.
+pair_coeff  *  * lj/cut/coul/long  0.  0.
+
+pair_coeff	1	1 lj/cut/tip4p/long	0.1628	3.164
+pair_coeff	1	2 lj/cut/tip4p/long	0	0
+pair_coeff	1	3 lj/cut/coul/long	0.108416604	3.23065
+pair_coeff	1	4 lj/cut/coul/long	0.195346666	3.372
+pair_coeff	2	2 lj/cut/tip4p/long	0	0
+pair_coeff	2	3 lj/cut/coul/long	0	0
+pair_coeff	2	4 lj/cut/coul/long	0	0
+pair_coeff	3	3 lj/cut/coul/long	0.0722	3.2973
+pair_coeff	3	4 lj/cut/coul/long	0.130091045	3.43865
+pair_coeff	4	4 lj/cut/coul/long	0.2344	3.58
+
+
+kspace_style pppm/tip4p 1.0e-5
+
+#COMPUTATIONAL SETTINGS
+
+neighbor 2.0 bin
+neigh_modify delay 5
+
+velocity all create 293 818181 rot yes dist gaussian
+minimize 1.0e-5 1.0e-7 1000 10000
+
+
+#EQUILIBRATION OF FLUIDS
+velocity middle set 0.0 0.0 0.0
+fix freeze_middle middle setforce 0.0 0.0 0.0 
+fix 1 water shake 1e-6 200 0 b 1 a 1
+fix 2 all npt temp 293.0 303.0 100.0 iso 1.0 1.0 1000.0
+compute c1 water cluster/atom 3.5
+compute cc1 water chunk/atom c_c1 compress yes
+compute prop all property/atom xu yu zu
+fix ave_xyz_chunk water ave/chunk 10 10 1000 cc1 c_prop[*] file average_chunk_position.csv 
+compute cvx air reduce ave vx
+compute cvy air reduce ave vy
+compute cvz air reduce ave vz
+
+fix air_vel air ave/time 100 10 1000 c_cvx c_cvy c_cvz
+
+compute totale water group/group water kspace yes
+# compute outer water molecule #1
+compute eewater1_kspace deletedwater1 group/group deletedwater1prime pair no kspace yes
+compute eewater1_pair deletedwater1 pe/tally deletedwater1prime
+
+
+# compute inner water molecule #1
+compute eewater6_kspace innerwater1 group/group innerwater1prime pair no kspace yes
+compute eewater6_pair innerwater1 pe/tally innerwater1prime 
+# compute inner water molecule #2
+compute eewater7_kspace innerwater2 group/group innerwater2prime pair no kspace yes
+compute eewater7_pair innerwater2 pe/tally innerwater2prime 
+# compute inner water molecule #3
+compute eewater8_kspace innerwater3 group/group innerwater3prime pair no kspace yes
+compute eewater8_pair innerwater3 pe/tally innerwater3prime 
+
+
+#variable water1dist equal "sqrt((x[2374]-70.0)^2+(y[2374]-70.0)^2+(z[2374]-70.0)^2)"
+#variable water2dist equal "sqrt((x[2701]-70.0)^2+(y[2701]-70.0)^2+(z[2701]-70.0)^2)"
+#variable water3dist equal "sqrt((x[2914]-70.0)^2+(y[2914]-70.0)^2+(z[2914]-70.0)^2)"
+#variable water4dist equal "sqrt((x[1774]-70.0)^2+(y[1774]-70.0)^2+(z[1774]-70.0)^2)"
+#variable water5dist equal "sqrt((x[2506]-70.0)^2+(y[2506]-70.0)^2+(z[2506]-70.0)^2)"
+
+#variable water6dist equal "sqrt((x[577]-70.0)^2+(y[577]-70.0)^2+(z[577]-70.0)^2)"
+#variable water7dist equal "sqrt((x[481]-70.0)^2+(y[481]-70.0)^2+(z[481]-70.0)^2)"
+#variable water8dist equal "sqrt((x[2842]-70.0)^2+(y[2842]-70.0)^2+(z[2842]-70.0)^2)"
+#variable water9dist equal "sqrt((x[2098]-70.0)^2+(y[2098]-70.0)^2+(z[2098]-70.0)^2)"
+#variable water10dist equal "sqrt((x[1408]-70.0)^2+(y[1408]-70.0)^2+(z[1408]-70.0)^2)"
+
+
+
+dump  vmd1 all xyz 1000 droplet.*.xyz
+dump_modify vmd1 element O H N O
+
+
+thermo_style    custom step temp press vol etotal ke atoms & 
+c_cvx c_cvy c_cvz f_air_vel[1] f_air_vel[2] f_air_vel[3] 
+#v_water1dist c_eewater1_kspace c_eewater1_pair  &
+#v_water6dist c_eewater6_kspace c_eewater6_pair  &
+#v_water7dist c_eewater7_kspace c_eewater7_pair  &
+#v_water8dist c_eewater8_kspace c_eewater8_pair  
+thermo          1000 
+
+compute velo air chunk/atom bin/1d x center 10.0 units box
+fix water_vel_fix air ave/chunk 100 100 25000 velo vx file velocity_x.out
+
+timestep 0.5
+run 100000
+write_restart restart.equilibrated1.system
+
+timestep 1
+run 100000
+write_restart restart.equilibrated2.system
+
+
+unfix 1
+unfix 2
+
+
+
+#Increase temperature to 303
+fix evaporate_water water evaporate 100 50 diameter50 49892 molecule yes
+fix 3 water shake 1e-6 200 0 b 1 a 1
+fix 4 all nvt temp 303.0 303.0 100.0
+#fix 4a air addforce 1e-5 0 0
+dump cluster1 all custom 1000 droplet_cluster.*.xyz id c_c1 c_cc1 x y z
+
+timestep 1
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
+run 100000
+write_restart restart.*.system
