@@ -1,7 +1,8 @@
 # Water_nanodroplets_evaporation
 * By: Ang Yun Mei Elisa 
-* If you use the data here, please cite: To input once accepted 
-* Last updated: 2 July 2022
+* If you use the data here, please cite: E. Y. M. Ang, P. C. Wang, W. Toh, T. Y. Ng, Suspended water nanodroplets evaporation and its deviation from continuum estimations. J Mol Liq 370, 121034 (2023) | to add after accepted
+* Last updated: 21 Nov 2024
+  - 21 Nov 2024: Added data with varying veloity 
 
 This repository hosts the data collected through molecular dynamics (MD) simulation for water nanodroplets evaporating in varying temperature, close to 0% RH condition. The article (submitted but not reviewed/published yet) reference to this dataset will be provided when the article is accepted and published. The data is made publicly available to encourage the expansion of dataset relating to evaporation of water nanodroplets, and the comparison of different machine learning methods that can be applied to build an efficient data-driven model for nanodroplets evaporation prediction. 
 
